@@ -16,6 +16,7 @@ class MNISTPreprocessor:
     def preprocess(self, raw_sample_identifier: str, raw_target_identifier: str, sample_identifier: str, target_identifier: str):
         with self._preprocess_sample_resource(raw_sample_identifier, sample_identifier) as sample_resource:
             self.storage_connector.set_resource(identifier=sample_resource.identifier, resource=sample_resource)
+
         with self._preprocess_target_resource(raw_target_identifier, target_identifier) as target_resource:
             self.storage_connector.set_resource(identifier=target_resource.identifier, resource=target_resource)
 

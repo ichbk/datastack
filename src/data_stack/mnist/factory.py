@@ -44,7 +44,7 @@ class MNISTFactory(BaseDatasetFactory):
 
         super().__init__(storage_connector)
 
-    def check_exists(self) -> bool:
+    def check_exists(self, split: str) -> bool:
         # TODO come up with a better check!
         sample_identifier = self._get_resource_id(data_type="preprocessed", split="train", element="samples.pt")
         return self.storage_connector.has_resource(sample_identifier)
@@ -58,7 +58,9 @@ class MNISTFactory(BaseDatasetFactory):
                                              md5_sum=resource_definition.md5_sum)
                           for split, definitions_list in self.resource_definitions.items()
                           for resource_definition in definitions_list]
+        
         retriever = RetrieverFactory.get_http_retriever(self.storage_connector)
+
         retriever.retrieve(retrieval_jobs)
 
     def _prepare_split(self, split: str):
@@ -73,12 +75,14 @@ class MNISTFactory(BaseDatasetFactory):
         splits = self.resource_definitions.keys()
         if split not in splits:
             raise ResourceNotFoundError(f"Split {split} is not defined.")
-        if not self.check_exists():
+        if not self.check_exists(split):
             self._retrieve_raw()
             for s in splits:
                 self._prepare_split(s)
 
         sample_identifier = self._get_resource_id(data_type="preprocessed", split=split, element="samples.pt")
+        print("siginal:", sample_identifier)
+
         target_identifier = self._get_resource_id(data_type="preprocessed", split=split, element="targets.pt")
         sample_resource = self.storage_connector.get_resource(identifier=sample_identifier)
         target_resource = self.storage_connector.get_resource(identifier=target_identifier)
